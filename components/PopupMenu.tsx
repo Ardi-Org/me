@@ -96,7 +96,11 @@ export default function PopupMenu() {
               )}
 
               {/* 👤 Member only when logged in */}
-              {isLoggedIn && <li onClick={() => setOpen(false)}>Member</li>}
+              {isLoggedIn && (
+                <li onClick={() => setOpen(false)}>
+                  <a href="/siasn">SIASN</a>
+                </li>
+              )}
             </ul>
           </div>
         </div>

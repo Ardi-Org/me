@@ -63,7 +63,7 @@ export default function Bottom_navbar() {
           </svg>
           Json
         </a> */}
-        <a href="/about" rel="noopener noreferrer">
+        <a href="/today" rel="noopener noreferrer">
           <svg
             className={styles.logo}
             xmlns="http://www.w3.org/2000/svg"
@@ -79,7 +79,7 @@ export default function Bottom_navbar() {
               strokeWidth="1.6"
             />
           </svg>
-          About
+          Today
         </a>
 
         <PopupMenu />

@@ -56,11 +56,28 @@
   font-weight: 600;
 }
 
-.login {
-  min-height: 100vh; /* setinggi layar */
+.today_main {
+  /*min-height: 100vh; /* setinggi layar */
   display: flex;
   justify-content: center; /* horizontal */
   align-items: center; /* vertical */
+  padding: 24px;
+}
+
+.today_tanggal {
+  font-size: 3rem;
+  font-weight: 600;
+}
+
+.today_even_wrap {
+  background-color: #ffffff;
+  border: 2px solid #ffffff; /* Optional: adds a visible border */
+  border-radius: 10px; /* Rounds all corners by 25px */
+  padding: 24px; /* Space between content and border */
+  margin-bottom: 24px;
+}
+.today_even {
+  color: var(--background);
 }
 
 .ctas {
@@ -171,7 +188,7 @@ a.secondary {
 }
 
 .bottom_navbar {
-  background-color: var(--color1);
+  background-color: var(--background);
   overflow: hidden;
   position: fixed;
   display: flex;
@@ -183,7 +200,7 @@ a.secondary {
 }
 
 .top_navbar {
-  background-color: transparent;
+  background-color: var(--background);
   overflow: hidden;
   position: fixed;
   display: flex;
