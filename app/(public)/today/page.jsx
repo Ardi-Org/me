@@ -60,17 +60,6 @@ export default async function HolidaysPage() {
       </div>
 
       {/* ✅ EVENT HARI INI */}
-      {/* {todayEvent ? (
-        <div className={styles.today_even_wrap}>
-          <div className={styles.today_even}>
-            <div>
-              <strong>{todayEvent.event_name}</strong>
-            </div>
-            <div>
-              Libur Nasional: {todayEvent.is_national_holiday ? "Ya" : "Tidak"}
-            </div>
-          </div>
-        </div> */}
       {todayEvents.length > 0 ? (
         <div className={styles.today_even_wrap}>
           <div className={styles.today_even}>
@@ -79,8 +68,7 @@ export default async function HolidaysPage() {
                 <li key={index} style={{ marginBottom: 8 }}>
                   <strong>{event.event_name}</strong>
                   <br />
-                  Libur Nasional:{" "}
-                  {event.is_national_holiday ? "Ya 🇮🇩" : "Tidak"}
+                  Libur : {event.is_national_holiday ? "Ya" : "Tidak"}
                 </li>
               ))}
             </ul>
@@ -93,9 +81,9 @@ export default async function HolidaysPage() {
       <table border="1" cellPadding="8" cellSpacing="0">
         <thead>
           <tr>
-            <th>Tanggal</th>
+            <th>Date</th>
             <th>Nama Event</th>
-            <th>Libur Nasional</th>
+            <th>Libur</th>
           </tr>
         </thead>
         <tbody>
