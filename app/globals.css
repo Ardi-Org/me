@@ -27,7 +27,5 @@ body {
 }
 
 .content {
-  /* position: sticky; */
   overflow: auto;
-  /* margin: 80px;  */
 }
