@@ -1,73 +1,109 @@
 "use client";
 
+import { useState } from "react";
 import useSWR from "swr";
-import { Line, Bar, Pie } from "react-chartjs-2";
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  BarElement,
-  ArcElement,
-  Tooltip,
-  Legend,
-} from "chart.js";
-
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  BarElement,
-  ArcElement,
-  Tooltip,
-  Legend,
-);
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
 export default function Dashboard() {
   const { data, error } = useSWR("/api/stats", fetcher, {
-    refreshInterval: 60000, // update every 1 min
+    refreshInterval: 60000,
   });
+
+  const [filter, setFilter] = useState(null);
 
   if (error) return <p>Error loading</p>;
   if (!data) return <p>Loading...</p>;
 
-  const labels = data.map((d) => d.day);
-  const values = data.map((d) => d.total);
+  const stats = data.stats;
+  const rows = data.data;
 
-  const chartData = {
-    labels,
-    datasets: [
-      {
-        label: "Proses integrasi dengan SIASN BKN",
-        data: values,
-      },
-    ],
-  };
+  const filtered = rows.filter((item) => {
+    const tab = (item.tab_update || "").toLowerCase();
+    const kol = item.kol_update || "";
+
+    if (filter === "berhasil_post")
+      return tab.includes("post") && kol.includes('"status":"sukses"');
+
+    if (filter === "gagal_post")
+      return tab.includes("post") && kol.includes('"status":"gagal"');
+
+    if (filter === "berhasil_get")
+      return tab.includes("get") && kol.includes('"status":"sukses"');
+
+    if (filter === "gagal_get")
+      return tab.includes("get") && kol.includes('"status":"gagal"');
+
+    return false;
+  });
 
   return (
     <div style={{ padding: 20 }}>
-      <h1>📊 Articles Dashboard</h1>
+      <h1>SIASN BKN Integration Monitor</h1>
 
-      {/* TEXT (FASTEST) */}
-      <h3>Summary</h3>
-      <p>Total days shown: {data.length}</p>
-      <p>Latest day count: {values[0]}</p>
+      {/* STATS */}
+      <div style={{ display: "flex", gap: 20, marginBottom: 20 }}>
+        <div
+          onClick={() => setFilter("berhasil_post")}
+          style={{ cursor: "pointer" }}
+        >
+          <h3>Berhasil Post</h3>
+          <h1>{stats.berhasil_post}</h1>
+        </div>
 
-      {/* LINE */}
-      <h3>Line Chart</h3>
-      <Line data={chartData} />
+        <div
+          onClick={() => setFilter("gagal_post")}
+          style={{ cursor: "pointer" }}
+        >
+          <h3>Gagal Post</h3>
+          <h1>{stats.gagal_post}</h1>
+        </div>
 
-      {/* BAR */}
-      <h3>Bar Chart</h3>
-      <Bar data={chartData} />
+        <div
+          onClick={() => setFilter("berhasil_get")}
+          style={{ cursor: "pointer" }}
+        >
+          <h3>Berhasil Get</h3>
+          <h1>{stats.berhasil_get}</h1>
+        </div>
 
-      {/* PIE */}
-      <h3>Pie Chart</h3>
-      <Pie data={chartData} />
+        <div
+          onClick={() => setFilter("gagal_get")}
+          style={{ cursor: "pointer" }}
+        >
+          <h3>Gagal Get</h3>
+          <h1>{stats.gagal_get}</h1>
+        </div>
+      </div>
+
+      {/* DETAIL TABLE */}
+      {filter && (
+        <>
+          <h3>Detail ({filter.replace("_", " ")})</h3>
+
+          <table border="1" cellPadding="5">
+            <thead>
+              <tr>
+                <th>Tanggal</th>
+                <th>NIP</th>
+                <th>Nama</th>
+                <th>Aktivitas</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {filtered.map((row, i) => (
+                <tr key={i}>
+                  <td>{row.tgl_update}</td>
+                  <td>{row.data_update}</td>
+                  <td>{row.nama_update}</td>
+                  <td>{row.tab_update}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </>
+      )}
     </div>
   );
 }

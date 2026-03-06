@@ -1,30 +1,104 @@
 import { getServerSession } from "next-auth";
-import mysql from "mysql2/promise";
+import { NextResponse } from "next/server";
+import { Agent } from "undici";
 
-// const pool = mysql.createPool({
-//   host: process.env.DB_HOST,
-//   user: process.env.DB_USER,
-//   password: process.env.DB_PASS,
-//   database: process.env.DB_NAME,
-//   port: process.env.DB_PORT,
-// });
+const insecureDispatcher = new Agent({
+  connect: {
+    rejectUnauthorized: false, // ⚠️ TEMP: expired SSL
+  },
+});
 
 export async function GET() {
   const session = await getServerSession();
-
   if (!session) {
-    return new Response("Unauthorized", { status: 401 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const [rows] = await pool.query(`
-      SELECT DATE(tgl_update) AS day, COUNT(tab_update) AS total
-      FROM tt_userevent
-      WHERE DATE(tgl_update) = CURDATE()
-      AND (tab_update LIKE '%SIASN%' OR tab_update LIKE '%SAPK%')
-      GROUP BY tab_update 
-      ORDER BY tgl_update DESC
-      LIMIT 30
-    `);
+  try {
+    // 1️⃣ Get token
+    const tokenRes = await fetch(
+      "https://apimanager-ropeg.kemendagri.go.id/api/token",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: new URLSearchParams({
+          username: process.env.API_USERNAME,
+          password: process.env.API_PASSWORD,
+        }),
+        dispatcher: insecureDispatcher, // Undici SSL workaround
+        cache: "no-store",
+      },
+    );
 
-  return Response.json(rows);
+    if (!tokenRes.ok) {
+      throw new Error("Token request failed");
+    }
+
+    const tokenJson = await tokenRes.json();
+
+    // ✅ CORRECT FIELD
+    const token = tokenJson.access_token;
+    console.log("token:", token);
+
+    if (!token) {
+      console.error("TOKEN RESPONSE:", tokenJson);
+      throw new Error("Token missing");
+    }
+
+    // 2️⃣ Fetch BKN event data
+    const dataRes = await fetch(
+      "https://apimanager-ropeg.kemendagri.go.id/apic/event_bkn",
+      {
+        headers: {
+          Auth: token,
+          Accept: "application/json",
+        },
+        dispatcher: insecureDispatcher,
+        cache: "no-store",
+      },
+    );
+
+    if (!dataRes.ok) {
+      throw new Error("Event API request failed");
+    }
+
+    const apiResult = await dataRes.json();
+    console.log("TOTAL DATA:", apiResult.data?.length);
+    const stats = {
+      berhasil_post: 0,
+      gagal_post: 0,
+      berhasil_get: 0,
+      gagal_get: 0,
+    };
+
+    for (const item of apiResult.data || []) {
+      const tab = (item.tab_update || "").toLowerCase();
+      const kol = item.kol_update || "";
+
+      if (tab.includes("post") && kol.includes('"status":"sukses"'))
+        stats.berhasil_post++;
+      if (tab.includes("post") && kol.includes('"status":"gagal"'))
+        stats.gagal_post++;
+      if (tab.includes("get") && kol.includes('"status":"sukses"'))
+        stats.berhasil_get++;
+      if (tab.includes("get") && kol.includes('"status":"gagal"'))
+        stats.gagal_get++;
+    }
+
+    return NextResponse.json({
+      stats,
+      data: apiResult.data || [],
+    });
+  } catch (err) {
+    console.error("API ERROR:", err);
+    return NextResponse.json(
+      {
+        error: "Failed to fetch BKN data",
+        message: err.message,
+      },
+      { status: 500 },
+    );
+  }
 }

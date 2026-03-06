@@ -71,13 +71,30 @@
 
 .today_even_wrap {
   background-color: #ffffff;
-  border: 2px solid #ffffff; /* Optional: adds a visible border */
+  /* border: 2px solid #ffffff; /* Optional: adds a visible border */
   border-radius: 10px; /* Rounds all corners by 25px */
   padding: 24px; /* Space between content and border */
   margin-bottom: 24px;
 }
 .today_even {
   color: var(--background);
+}
+
+.today_even_name {
+  display: flex;
+  width: 80%;
+  line-height: 14px;
+  align-items: center;
+  justify-items: center;
+  text-align: right;
+}
+.today_even_svg {
+  width: 20%;
+  display: flex;
+  justify-content: right;
+}
+.today_even ul li {
+  display: flex;
 }
 
 .ctas {
@@ -240,6 +257,30 @@ a.secondary {
 
 .jsonWrap {
   display: flex;
+}
+
+.svg_iya path {
+  fill: none; /* No interior color */
+  stroke: green; /* Sets the outline color to green */
+  stroke-width: 2px; /* Sets the thickness of the stroke */
+}
+
+.svg_tidak path {
+  fill: none; /* No interior color */
+  stroke: rgb(128, 0, 0); /* Sets the outline color to green */
+  stroke-width: 2px; /* Sets the thickness of the stroke */
+}
+
+.svg_libur path {
+  fill: none; /* No interior color */
+  stroke: green; /* Sets the outline color to green */
+  stroke-width: 1px; /* Sets the thickness of the stroke */
+}
+
+.svg_kerja path {
+  fill: none; /* No interior color */
+  stroke: rgb(128, 0, 0); /* Sets the outline color to green */
+  stroke-width: 1px; /* Sets the thickness of the stroke */
 }
 
 .fieldJson {
