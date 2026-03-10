@@ -15,54 +15,22 @@ export async function GET() {
   }
 
   try {
-    // // 1️⃣ Get token
-    // const tokenRes = await fetch(
-    //   "https://apimanager-ropeg.kemendagri.go.id/api/token",
-    //   {
-    //     method: "POST",
-    //     headers: {
-    //       "Content-Type": "application/x-www-form-urlencoded",
-    //     },
-    //     body: new URLSearchParams({
-    //       username: process.env.API_USERNAME,
-    //       password: process.env.API_PASSWORD,
-    //     }),
-    //     dispatcher: insecureDispatcher, // Undici SSL workaround
-    //     cache: "no-store",
-    //   },
-    // );
-
-    // if (!tokenRes.ok) {
-    //   throw new Error("Token request failed");
-    // }
-
-    // const tokenJson = await tokenRes.json();
-
-    // // ✅ CORRECT FIELD
-    // const token = tokenJson.access_token;
-    // console.log("token:", token);
-
-    // if (!token) {
-    //   console.error("TOKEN RESPONSE:", tokenJson);
-    //   throw new Error("Token missing");
-    // }
-
     const dataRes = await fetch("https://api.ardilas.com/public/bkn/event", {
       method: "GET",
       headers: {
         "X-Proxy-Key": process.env.PROXY_SECRET,
       },
     });
-    console.log("dataRes:", dataRes);
+    // console.log("dataRes:", dataRes);
 
-    const data = await dataRes.json();
+    // const data = await dataRes.json();
+    const apiResult = await dataRes.json();
 
     if (!dataRes.ok) {
       throw new Error("Event API request failed");
     }
 
-    const apiResult = await dataRes.json();
-    console.log("TOTAL DATA:", apiResult.data?.length);
+    // console.log("TOTAL DATA:", apiResult.data?.length);
     const stats = {
       berhasil_post: 0,
       gagal_post: 0,
