@@ -7,7 +7,7 @@ const fetcher = (url) => fetch(url).then((res) => res.json());
 
 export default function Dashboard() {
   const { data, error } = useSWR("/api/stats", fetcher, {
-    refreshInterval: 60000,
+    // refreshInterval: 60000,
   });
 
   const [filter, setFilter] = useState(null);

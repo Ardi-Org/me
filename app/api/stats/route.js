@@ -1,12 +1,12 @@
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
-import { Agent } from "undici";
+// import { Agent } from "undici";
 
-const insecureDispatcher = new Agent({
-  connect: {
-    rejectUnauthorized: false, // ⚠️ TEMP: expired SSL
-  },
-});
+// const insecureDispatcher = new Agent({
+//   connect: {
+//     rejectUnauthorized: false, // ⚠️ TEMP: expired SSL
+//   },
+// });
 
 export async function GET() {
   const session = await getServerSession();
