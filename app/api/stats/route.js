@@ -58,12 +58,12 @@ export async function GET() {
     });
   } catch (err) {
     console.error("API ERROR:", err);
-    return NextResponse.json(
-      {
-        error: "Failed to fetch BKN data",
-        message: err.message,
-      },
-      { status: 500 },
-    );
+    // return NextResponse.json(
+    //   {
+    //     error: "Failed to fetch BKN data",
+    //     message: err.message,
+    //   },
+    //   { status: 500 },
+    // );
   }
 }

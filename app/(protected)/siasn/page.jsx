@@ -38,7 +38,7 @@ export default function Dashboard() {
   });
 
   return (
-    <div style={{ padding: 20 }}>
+    <div style={{ padding: "40px 20px" }}>
       <h1>SIASN BKN Integration Monitor</h1>
 
       {/* STATS */}
@@ -81,7 +81,26 @@ export default function Dashboard() {
         <>
           <h3>Detail ({filter.replace("_", " ")})</h3>
 
-          <table border="1" cellPadding="5">
+          {filtered.map((row, i) => (
+            <div key={i}>
+              <details>
+                <summary>
+                  {row.data_update}
+                  <br />
+                  {row.nama_update}
+                </summary>
+                {row.tgl_update}
+                <br />
+                {row.data_update}
+                <br />
+                {row.nama_update}
+                <br />
+                {row.tab_update}
+              </details>
+            </div>
+          ))}
+
+          {/* <table border="1" cellPadding="5">
             <thead>
               <tr>
                 <th>Tanggal</th>
@@ -101,7 +120,7 @@ export default function Dashboard() {
                 </tr>
               ))}
             </tbody>
-          </table>
+          </table> */}
         </>
       )}
     </div>
