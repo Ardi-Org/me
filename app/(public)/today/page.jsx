@@ -32,9 +32,19 @@ function getTodayISO() {
 async function getHolidays(month, year) {
   const url = `https://hari-libur-api.vercel.app/api?month=${month}&year=${year}`;
 
-  const res = await fetch(url, { cache: "no-store" });
+  const res = await fetch(url, { cache: "no-store" }).catch(() => null);
 
-  if (!res.ok) throw new Error("Failed to fetch holidays");
+  if (!res || !res.ok) return false;
+
+  return res.json();
+}
+
+async function getHolidays2(month, year) {
+  const url = `https://libur.deno.dev/api?month=${month}&year=${year}`;
+
+  const res = await fetch(url, { cache: "no-store" }).catch(() => null);
+
+  if (!res || !res.ok) return false;
 
   return res.json();
 }
@@ -42,10 +52,20 @@ async function getHolidays(month, year) {
 export default async function HolidaysPage() {
   const { hari, tanggal, bulan, bulanAngka, tahun } = getTanggalIndonesia();
 
-  const holidays = await getHolidays(bulanAngka, tahun);
   const todayISO = getTodayISO();
 
-  const todayEvents = holidays.filter((item) => item.event_date === todayISO);
+  let holidays = await getHolidays(bulanAngka, tahun);
+  let holidays2 = null;
+  let useSecondApi = false;
+
+  if (!holidays) {
+    holidays2 = await getHolidays2(bulanAngka, tahun);
+    useSecondApi = true;
+  }
+
+  const todayEvents = useSecondApi
+    ? holidays2?.filter((item) => item.date === todayISO) || []
+    : holidays?.filter((item) => item.event_date === todayISO) || [];
 
   return (
     <div style={{ padding: 24 }}>
@@ -60,14 +80,14 @@ export default async function HolidaysPage() {
       </div>
 
       {/* ✅ EVENT HARI INI */}
-      {todayEvents.length > 0 ? (
+      {todayEvents.length > 0 && (
         <div className={styles.today_even_wrap}>
           <div className={styles.today_even}>
             <ul>
               {todayEvents.map((event, index) => (
                 <li key={index} style={{ marginBottom: 8 }}>
                   <div className={styles.today_even_name}>
-                    {event.event_name}
+                    {useSecondApi ? event.name : event.event_name}
                   </div>
                   <div className={styles.today_even_svg}>
                     {event.is_national_holiday ? (
@@ -187,8 +207,6 @@ export default async function HolidaysPage() {
             </ul>
           </div>
         </div>
-      ) : (
-        ""
       )}
 
       <table border="1" cellPadding="8" cellSpacing="0">
@@ -196,53 +214,59 @@ export default async function HolidaysPage() {
           <tr>
             <th>Date</th>
             <th>Nama Event</th>
-            <th>Libur</th>
+            {!useSecondApi && <th>Libur</th>}
           </tr>
         </thead>
         <tbody>
-          {holidays.map((item, index) => (
+          {(useSecondApi ? holidays2 : holidays)?.map((item, index) => (
             <tr className={styles.json} key={index}>
-              <td className={styles.fieldJson}>{item.event_date}</td>
-              <td className={styles.fieldJson}>{item.event_name}</td>
               <td className={styles.fieldJson}>
-                {item.is_national_holiday ? (
-                  <svg
-                    className={styles.svg_iya}
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    width={16}
-                    height={16}
-                    color={"#000000"}
-                    fill={"none"}
-                  >
-                    <path
-                      d="M5 14.5C5 14.5 6.5 14.5 8.5 18C8.5 18 14.0588 8.83333 19 7"
-                      stroke="currentColor"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    ></path>
-                  </svg>
-                ) : (
-                  <svg
-                    className={styles.svg_tidak}
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    width={16}
-                    height={16}
-                    color={"#000000"}
-                    fill={"none"}
-                  >
-                    <path
-                      d="M18 6L6.00081 17.9992M17.9992 18L6 6.00085"
-                      stroke="#000000"
-                      strokeWidth="1.6"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    ></path>
-                  </svg>
-                )}
+                {useSecondApi ? item.date : item.event_date}
               </td>
+              <td className={styles.fieldJson}>
+                {useSecondApi ? item.name : item.event_name}
+              </td>
+              {!useSecondApi && (
+                <td className={styles.fieldJson}>
+                  {item.is_national_holiday ? (
+                    <svg
+                      className={styles.svg_iya}
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      width={16}
+                      height={16}
+                      color={"#000000"}
+                      fill={"none"}
+                    >
+                      <path
+                        d="M5 14.5C5 14.5 6.5 14.5 8.5 18C8.5 18 14.0588 8.83333 19 7"
+                        stroke="currentColor"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      ></path>
+                    </svg>
+                  ) : (
+                    <svg
+                      className={styles.svg_tidak}
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      width={16}
+                      height={16}
+                      color={"#000000"}
+                      fill={"none"}
+                    >
+                      <path
+                        d="M18 6L6.00081 17.9992M17.9992 18L6 6.00085"
+                        stroke="#000000"
+                        strokeWidth="1.6"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      ></path>
+                    </svg>
+                  )}
+                </td>
+              )}
             </tr>
           ))}
         </tbody>
